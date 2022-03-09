@@ -4,9 +4,14 @@ module TrialChain.AppState
     getBalance,
     addTx,
     getTx,
+    evalAppM,
+    getBalanceM,
+    addTxM,
+    getTxM,
   )
 where
 
+import Control.Monad.Except (liftEither)
 import qualified Data.Map.Strict as Map
 import Protolude
 import TrialChain.Signature
@@ -29,16 +34,16 @@ mkState :: [(PublicKey, Integer)] -> AppState
 mkState list = AppState mempty balances
   where
     balances = Map.fromListWith (\(Money a) (Money b) -> Money (a + b)) moneyList
-    moneyList = fmap (\(a, b) -> (a, Money b)) list
+    moneyList = fmap (second Money) list
 
-getBalance :: AppState -> PublicKey -> Money
-getBalance AppState {..} pubKey =
+getBalance :: PublicKey -> AppState -> Money
+getBalance pubKey AppState {..} =
   fromMaybe (Money 0) $ Map.lookup pubKey app_balances
 
-addTx :: AppState -> Tx -> Either AppError AppState
-addTx st@AppState {..} tx@(Tx txb@TxBody {..} _) = do
-  let (Money balanceFrom) = getBalance st txb_from
-      (Money balanceTo) = getBalance st txb_to
+addTx :: Tx -> AppState -> Either AppError AppState
+addTx tx@(Tx txb@TxBody {..} _) st@AppState {..} = do
+  let (Money balanceFrom) = getBalance txb_from st
+      (Money balanceTo) = getBalance txb_to st
       (Money amount) = txb_amount
       newBalanceFrom = Money (balanceFrom - amount)
       newBalanceTo = Money (balanceTo + amount)
@@ -60,6 +65,21 @@ addTx st@AppState {..} tx@(Tx txb@TxBody {..} _) = do
         app_balances = newBalances
       }
 
-getTx :: AppState -> Hash -> Either AppError Tx
-getTx AppState {..} txId =
+getTx :: Hash -> AppState -> Either AppError Tx
+getTx txId AppState {..} =
   maybeToRight (UnknownTx txId) $ Map.lookup txId app_transactions
+
+newtype AppM a = App {unApp :: StateT AppState (ExceptT AppError Identity) a}
+  deriving newtype (Functor, Applicative, Monad, MonadState AppState, MonadError AppError)
+
+evalAppM :: AppM a -> AppState -> Either AppError a
+evalAppM appM st = runExcept (evalStateT (unApp appM) st)
+
+getBalanceM :: PublicKey -> AppM Money
+getBalanceM pubKey = get <&> getBalance pubKey
+
+addTxM :: Tx -> AppM ()
+addTxM tx = get >>= liftEither . addTx tx >>= put
+
+getTxM :: Hash -> AppM Tx
+getTxM txId = get >>= (liftEither . getTx txId)
