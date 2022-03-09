@@ -27,6 +27,7 @@ library
   exposed-modules:
       TrialChain
       TrialChain.Internal
+      TrialChain.Signature
       TrialChain.Types
   other-modules:
       Paths_trial_chain_api
@@ -55,7 +56,12 @@ library
       ViewPatterns
   build-depends:
       base >=4.7 && <5
+    , base16-bytestring
+    , binary
+    , bytestring
     , containers
+    , cryptonite
+    , memory
     , mtl
     , protolude
     , stm
@@ -92,7 +98,12 @@ executable trial-chain-api-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , base16-bytestring
+    , binary
+    , bytestring
     , containers
+    , cryptonite
+    , memory
     , mtl
     , protolude
     , stm
@@ -133,10 +144,15 @@ test-suite trial-chain-api-test
       HUnit
     , QuickCheck
     , base >=4.7 && <5
+    , base16-bytestring
+    , binary
+    , bytestring
     , containers
+    , cryptonite
     , hspec
     , hspec-contrib
     , hspec-core
+    , memory
     , mtl
     , protolude
     , stm

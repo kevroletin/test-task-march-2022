@@ -26,6 +26,12 @@ dependencies:
 - protolude
 - stm
 - text
+- bytestring
+- base16-bytestring
+# cryptonite is a popular library
+- binary
+- cryptonite
+- memory
 
 default-extensions:
 # ----------
