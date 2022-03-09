@@ -1,0 +1,13 @@
+cradle:
+  cabal:
+    - path: "src"
+      component: "lib:trial-chain-api"
+
+    - path: "app/Main.hs"
+      component: "trial-chain-api:exe:trial-chain-api-exe"
+
+    - path: "app/Paths_trial_chain_api.hs"
+      component: "trial-chain-api:exe:trial-chain-api-exe"
+
+    - path: "test"
+      component: "trial-chain-api:test:trial-chain-api-test"

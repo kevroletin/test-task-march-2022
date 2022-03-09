@@ -1,0 +1,1 @@
+module TrialChain.Types where
