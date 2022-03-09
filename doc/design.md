@@ -38,8 +38,24 @@ kind of testing we are supposed to do. Important missing requirements are:
 ## Design 
 
 1. Transaction structure 
+   
+   + No UTXO, account based tracking, hence Tx has nonce field, so we can send
+     similar transactions many times
+
 2. Hash.
+
+   + Serialize using derived Data.Binary instances
+   + Hash with cryptonite using md5
+
 3. Signature.
+
+   Mocking signature using a trivial algorithm:
+   + public key is any string
+   + private key is the same string with "signed-by-" prefix
+   + signature is hash represented as Base16 with a privateKey as prefix
+
+   As a result signatures are quire readable which is good for debugging.
+
 4. Http server.
 5. Storage.
 6. Synchronization.
