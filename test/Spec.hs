@@ -3,9 +3,13 @@ import Test.Hspec
 
 import TrialChain.Signature
 import TrialChain.Types
+import TrialChain.AppState
 
 main :: IO ()
 main = hspec $ do
+  let (pubFrom, privFrom) = mkAccount "testAccFrom"
+  let (pubTo, privTo) = mkAccount "testAccTo"
+
   describe "Signature" $ do
     it "create account" $ do
       let (pub, priv) = mkAccount "testAcc"
@@ -21,9 +25,6 @@ main = hspec $ do
       let (pub2, priv2) = mkAccount "testAcc2"
       let str :: ByteString = "content"
       validateSign pub2 str (signStr priv1 str) `shouldBe` Nothing
-
-    let (pubFrom, privFrom) = mkAccount "testAccFrom"
-    let (pubTo, privTo) = mkAccount "testAccTo"
 
     it "sign and check tx signature" $ do
       let txB = TxBody { txb_from = pubFrom
@@ -42,3 +43,27 @@ main = hspec $ do
                        }
       let tx = signTxBody privTo txB
       validateTxSign tx `shouldBe` Nothing
+
+  describe "tx processing" $ do
+    it "move from 0 to 0" $ do
+      let tx = signTxBody privFrom $ TxBody { txb_from = pubFrom
+                                            , txb_to = pubTo
+                                            , txb_amount = Money 100
+                                            , txb_nonce = ""
+                                            }
+      let st = mkState [(pubTo, 100)]
+      addTx st tx `shouldBe` Left (InsufficientFunds (Money 0) (Money 100))
+
+    it "move and get balance" $ do
+      let tx = signTxBody privFrom $ TxBody { txb_from = pubFrom
+                                            , txb_to = pubTo
+                                            , txb_amount = Money 100
+                                            , txb_nonce = ""
+                                            }
+      let st = mkState [(pubFrom, 100)]
+      let res = addTx st tx
+      isRight res `shouldBe` True
+
+      let (Right st1) = res
+      getBalance st1 pubFrom `shouldBe` Money 0
+      getBalance st1 pubTo   `shouldBe` Money 100
