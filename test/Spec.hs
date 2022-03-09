@@ -9,6 +9,9 @@ main :: IO ()
 main = hspec $ do
   let (pubFrom, privFrom) = mkAccount "testAccFrom"
   let (pubTo, privTo) = mkAccount "testAccTo"
+  let (pub1, priv1) = mkAccount "testAcc1"
+  let (pub2, priv2) = mkAccount "testAcc2"
+  let (pub3, priv3) = mkAccount "testAcc3"
 
   describe "Signature" $ do
     it "create account" $ do
@@ -52,7 +55,7 @@ main = hspec $ do
                                             , txb_nonce = ""
                                             }
       let st = mkState [(pubTo, 100)]
-      addTx st tx `shouldBe` Left (InsufficientFunds (Money 0) (Money 100))
+      addTx tx st `shouldBe` Left (InsufficientFunds (Money 0) (Money 100))
 
     it "move and get balance" $ do
       let tx = signTxBody privFrom $ TxBody { txb_from = pubFrom
@@ -61,9 +64,24 @@ main = hspec $ do
                                             , txb_nonce = ""
                                             }
       let st = mkState [(pubFrom, 100)]
-      let res = addTx st tx
+      let res = addTx tx st
       isRight res `shouldBe` True
 
       let (Right st1) = res
-      getBalance st1 pubFrom `shouldBe` Money 0
-      getBalance st1 pubTo   `shouldBe` Money 100
+      getBalance pubFrom st1 `shouldBe` Money 0
+      getBalance pubTo   st1 `shouldBe` Money 100
+
+    let mkTx privFrom pubTo amount nonce =
+          signTxBody privFrom $ TxBody { txb_from = priv2pub privFrom
+                                      , txb_to = pubTo
+                                      , txb_amount = Money amount
+                                      , txb_nonce = nonce
+                                      }
+
+    it "move/get" $ do
+      let st = mkState [(pub1, 50), (pub2, 50)]
+      let res = flip evalAppM st $ do
+                  addTxM $ mkTx priv1 pub3 50 ""
+                  addTxM $ mkTx priv2 pub3 50 ""
+                  getBalanceM pub3
+      res `shouldBe` Right (Money 100)
