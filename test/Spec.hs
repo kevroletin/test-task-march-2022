@@ -96,3 +96,38 @@ main = hspec $ do
             addTxM $ mkTx priv2 pub3 50 ""
             getBalanceM pub3
       res `shouldBe` Right (Money 100)
+
+    it "execute the same tx twice" $ do
+      let st = mkState [(pub1, 100)]
+      let tx = mkTx priv1 pub2 50 ""
+      let res = flip evalAppM st $ do
+            addTxM tx
+            addTxM tx
+            pure ()
+      res `shouldBe` Left (DuplicateTx (hashTx tx))
+
+    it "execute similar tx" $ do
+      let st = mkState [(pub1, 100)]
+      let res = flip evalAppM st $ do
+            addTxM $ mkTx priv1 pub2 50 "nonce-1"
+            addTxM $ mkTx priv1 pub2 50 "nonce-2"
+            getBalanceM pub2
+      res `shouldBe` Right (Money 100)
+
+    it "use wrong signature" $ do
+      let st = mkState [(pub1, 100)]
+      let tx =
+            signTxBody
+              priv2
+              TxBody
+                { txb_from = pub1,
+                  txb_to = pub2,
+                  txb_amount = Money 1,
+                  txb_nonce = ""
+                }
+      addTx tx st `shouldBe` Left (InvalidTxSignature (tx_signature tx))
+
+    it "get unknown tx" $ do
+      let st = mkState []
+      let tx = mkTx priv1 pub2 100 ""
+      getTx (hashTx tx) st `shouldBe` Left (UnknownTx (hashTx tx))
