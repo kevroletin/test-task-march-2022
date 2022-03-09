@@ -1,6 +1,7 @@
 module Main where
 
-import Lib
+import Protolude
+import TrialChain (helloWorld)
 
 main :: IO ()
-main = someFunc
+main = print helloWorld

@@ -21,6 +21,36 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- containers
+- mtl
+- protolude
+- stm
+- text
+
+default-extensions:
+# ----------
+- StrictData
+- BangPatterns
+# ----------
+- NoImplicitPrelude
+# ----------
+- DataKinds
+- DeriveAnyClass
+- DeriveGeneric
+- DerivingStrategies
+- FlexibleContexts
+- FlexibleInstances
+- GeneralizedNewtypeDeriving
+- LambdaCase
+- MultiParamTypeClasses
+- NoMonomorphismRestriction
+- OverloadedStrings
+- RecordWildCards
+- ScopedTypeVariables
+- StandaloneDeriving
+- TupleSections
+- TypeSynonymInstances
+- ViewPatterns
 
 library:
   source-dirs: src
@@ -46,3 +76,10 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - trial-chain-api
+    # We use hspec just because it's familiar
+    - hspec
+    - hspec-core
+    - hspec-contrib
+    - QuickCheck
+    - HUnit
+    - containers

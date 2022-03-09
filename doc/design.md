@@ -46,3 +46,5 @@ kind of testing we are supposed to do. Important missing requirements are:
 7. unit testing.
 8. e2e testing.
 9. performance testing.
+10. coding style.
+    + just use ormolu - consistent, easy to use (but gives opinionated formatting)
