@@ -1,9 +1,8 @@
 import Protolude
 import Test.Hspec
-
+import TrialChain.AppState
 import TrialChain.Signature
 import TrialChain.Types
-import TrialChain.AppState
 
 main :: IO ()
 main = hspec $ do
@@ -30,58 +29,70 @@ main = hspec $ do
       validateSign pub2 str (signStr priv1 str) `shouldBe` Nothing
 
     it "sign and check tx signature" $ do
-      let txB = TxBody { txb_from = pubFrom
-                       , txb_to = pubTo
-                       , txb_amount = Money 100
-                       , txb_nonce = ""
-                       }
+      let txB =
+            TxBody
+              { txb_from = pubFrom,
+                txb_to = pubTo,
+                txb_amount = Money 100,
+                txb_nonce = ""
+              }
       let tx = signTxBody privFrom txB
       validateTxSign tx `shouldBe` Just tx
 
     it "sign wrong tx signature" $ do
-      let txB = TxBody { txb_from = pubFrom
-                       , txb_to = pubTo
-                       , txb_amount = Money 100
-                       , txb_nonce = ""
-                       }
+      let txB =
+            TxBody
+              { txb_from = pubFrom,
+                txb_to = pubTo,
+                txb_amount = Money 100,
+                txb_nonce = ""
+              }
       let tx = signTxBody privTo txB
       validateTxSign tx `shouldBe` Nothing
 
   describe "tx processing" $ do
     it "move from 0 to 0" $ do
-      let tx = signTxBody privFrom $ TxBody { txb_from = pubFrom
-                                            , txb_to = pubTo
-                                            , txb_amount = Money 100
-                                            , txb_nonce = ""
-                                            }
+      let tx =
+            signTxBody privFrom $
+              TxBody
+                { txb_from = pubFrom,
+                  txb_to = pubTo,
+                  txb_amount = Money 100,
+                  txb_nonce = ""
+                }
       let st = mkState [(pubTo, 100)]
       addTx tx st `shouldBe` Left (InsufficientFunds (Money 0) (Money 100))
 
     it "move and get balance" $ do
-      let tx = signTxBody privFrom $ TxBody { txb_from = pubFrom
-                                            , txb_to = pubTo
-                                            , txb_amount = Money 100
-                                            , txb_nonce = ""
-                                            }
+      let tx =
+            signTxBody privFrom $
+              TxBody
+                { txb_from = pubFrom,
+                  txb_to = pubTo,
+                  txb_amount = Money 100,
+                  txb_nonce = ""
+                }
       let st = mkState [(pubFrom, 100)]
       let res = addTx tx st
       isRight res `shouldBe` True
 
       let (Right st1) = res
       getBalance pubFrom st1 `shouldBe` Money 0
-      getBalance pubTo   st1 `shouldBe` Money 100
+      getBalance pubTo st1 `shouldBe` Money 100
 
     let mkTx privFrom pubTo amount nonce =
-          signTxBody privFrom $ TxBody { txb_from = priv2pub privFrom
-                                      , txb_to = pubTo
-                                      , txb_amount = Money amount
-                                      , txb_nonce = nonce
-                                      }
+          signTxBody privFrom $
+            TxBody
+              { txb_from = priv2pub privFrom,
+                txb_to = pubTo,
+                txb_amount = Money amount,
+                txb_nonce = nonce
+              }
 
     it "move/get" $ do
       let st = mkState [(pub1, 50), (pub2, 50)]
       let res = flip evalAppM st $ do
-                  addTxM $ mkTx priv1 pub3 50 ""
-                  addTxM $ mkTx priv2 pub3 50 ""
-                  getBalanceM pub3
+            addTxM $ mkTx priv1 pub3 50 ""
+            addTxM $ mkTx priv2 pub3 50 ""
+            getBalanceM pub3
       res `shouldBe` Right (Money 100)
