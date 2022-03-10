@@ -63,6 +63,13 @@ kind of testing we are supposed to do. Important missing requirements are:
    others.
 
 4. Http server.
+
+   + Req/Resp encoding (TODO: explain)
+
+   + Error Handling
+     - TODO: error names
+     - all errors are returned with 400 code (TODO: explain)
+
 5. Storage.
 6. Synchronization.
 7. unit testing.
@@ -70,3 +77,4 @@ kind of testing we are supposed to do. Important missing requirements are:
 9. performance testing.
 10. coding style.
     + just use ormolu - consistent, easy to use (but gives opinionated formatting)
+

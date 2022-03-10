@@ -22,26 +22,6 @@ type API =
     :<|> "balance" :> Capture "publicKey" PublicKey :> Get '[JSON] Money
 {- ORMOLU_ENABLE -}
 
-instance ToJSON Tx
-
-instance FromJSON Tx
-
-instance ToJSON TxBody
-
-instance FromJSON TxBody
-
-instance ToJSON Money
-
-instance FromJSON Money
-
-instance ToJSON PublicKey
-
-instance FromJSON PublicKey
-
-instance ToJSON Signature
-
-instance FromJSON Signature
-
 instance FromHttpApiData Hash where
   parseUrlPiece = mkHash
 
