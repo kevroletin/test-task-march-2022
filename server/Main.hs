@@ -1,26 +1,17 @@
-{-# LANGUAGE TypeOperators #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Main where
 
 import Control.Concurrent.STM
 import Control.Monad.Except
-import Data.Aeson
 import qualified Data.ByteString.Lazy as BL
-import qualified Data.Text.Encoding.Base16 as Base16
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Protolude hiding (Handler)
 import Servant
+import TrialChain.API
 import TrialChain.AppState
 import TrialChain.Types
-
-{- ORMOLU_DISABLE -}
-type API =
-         "tx" :> ReqBody '[JSON] Tx :> Put '[JSON] ()
-    :<|> "tx" :> Capture "txId" Hash :> Get '[JSON] Tx
-    :<|> "balance" :> Capture "publicKey" PublicKey :> Get '[JSON] Money
-{- ORMOLU_ENABLE -}
 
 instance FromHttpApiData Hash where
   parseUrlPiece = mkHash
@@ -58,17 +49,14 @@ getBalanceH ss pubKey =
 
 newtype ServerState = ServerState (TVar AppState)
 
-server :: ServerState -> Server API
+server :: ServerState -> Server TrialChainAPI
 server st =
   addTxH st
     :<|> getTxH st
     :<|> getBalanceH st
 
-api :: Proxy API
-api = Proxy
-
 app :: ServerState -> Application
-app ss = serve api (server ss)
+app ss = serve trialChainAPI (server ss)
 
 main :: IO ()
 main = do
