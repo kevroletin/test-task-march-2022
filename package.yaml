@@ -21,17 +21,18 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- base16
+- binary
+- bytestring
 - containers
+- cryptonite
+- memory
 - mtl
 - protolude
 - stm
 - text
-- bytestring
-- base16-bytestring
-# cryptonite is a popular library
-- binary
-- cryptonite
-- memory
+- wai
+- warp
 
 default-extensions:
 # ----------

@@ -19,13 +19,13 @@ main = hspec $ do
 
     it "sign and check signature" $ do
       let (pub, priv) = mkAccount "testAcc"
-      let str :: ByteString = "content"
+      let str :: Text = "content"
       validateSign pub str (signStr priv str) `shouldBe` Just str
 
     it "sign and check wrong signature" $ do
       let (pub1, priv1) = mkAccount "testAcc1"
       let (pub2, priv2) = mkAccount "testAcc2"
-      let str :: ByteString = "content"
+      let str :: Text = "content"
       validateSign pub2 str (signStr priv1 str) `shouldBe` Nothing
 
     it "sign and check tx signature" $ do
