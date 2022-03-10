@@ -56,8 +56,9 @@ library
       TypeSynonymInstances
       ViewPatterns
   build-depends:
-      base >=4.7 && <5
-    , base16-bytestring
+      aeson
+    , base >=4.7 && <5
+    , base16
     , binary
     , bytestring
     , containers
@@ -65,8 +66,12 @@ library
     , memory
     , mtl
     , protolude
+    , servant
+    , servant-server
     , stm
     , text
+    , wai
+    , warp
   default-language: Haskell2010
 
 executable trial-chain-api-exe
@@ -98,8 +103,9 @@ executable trial-chain-api-exe
       ViewPatterns
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
-    , base16-bytestring
+      aeson
+    , base >=4.7 && <5
+    , base16
     , binary
     , bytestring
     , containers
@@ -107,9 +113,13 @@ executable trial-chain-api-exe
     , memory
     , mtl
     , protolude
+    , servant
+    , servant-server
     , stm
     , text
     , trial-chain-api
+    , wai
+    , warp
   default-language: Haskell2010
 
 test-suite trial-chain-api-test
@@ -144,8 +154,9 @@ test-suite trial-chain-api-test
   build-depends:
       HUnit
     , QuickCheck
+    , aeson
     , base >=4.7 && <5
-    , base16-bytestring
+    , base16
     , binary
     , bytestring
     , containers
@@ -156,7 +167,11 @@ test-suite trial-chain-api-test
     , memory
     , mtl
     , protolude
+    , servant
+    , servant-server
     , stm
     , text
     , trial-chain-api
+    , wai
+    , warp
   default-language: Haskell2010
