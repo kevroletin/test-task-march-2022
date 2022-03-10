@@ -3,11 +3,17 @@ cradle:
     - path: "src"
       component: "lib:trial-chain-api"
 
-    - path: "app/Main.hs"
-      component: "trial-chain-api:exe:trial-chain-api-exe"
+    - path: "load-test/Main.hs"
+      component: "trial-chain-api:exe:load-test-exe"
 
-    - path: "app/Paths_trial_chain_api.hs"
-      component: "trial-chain-api:exe:trial-chain-api-exe"
+    - path: "load-test/Paths_trial_chain_api.hs"
+      component: "trial-chain-api:exe:load-test-exe"
+
+    - path: "server/Main.hs"
+      component: "trial-chain-api:exe:server-exe"
+
+    - path: "server/Paths_trial_chain_api.hs"
+      component: "trial-chain-api:exe:server-exe"
 
     - path: "test"
       component: "trial-chain-api:test:trial-chain-api-test"
