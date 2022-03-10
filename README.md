@@ -4,9 +4,46 @@
 
 ## Build
 
+```
+stack build
+```
+
 ## Run
 
+```
+stack run server-exe
+```
+
 ## Test
+
+```
+stack test
+```
+
+## Profiling
+
+Done manually. Build sever with profiling, run load-test, analyze profiles
+manually.
+
+Hunting down memory leaks:
+
+```
+stack run --profile server-exe -- +RTS  -hy -l-agu -RTS
+eventlog2html server-exe.eventlog && firefox server-exe.eventlog.html
+```
+
+Hunting down performance bottlenecks:
+
+```
+stack run --profile server-exe -- +RTS -p -RTS
+ghc-prof-flamegraph server-exe.prof && firefox firefox server-exe.svg
+```
+
+Running a tester.
+
+```
+stack run load-test-exe
+```
 
 ## Coding style
 

@@ -14,6 +14,7 @@ module TrialChain.Types
   )
 where
 
+import Control.DeepSeq
 import Data.Aeson
 import Data.Aeson.TH (Options (fieldLabelModifier), defaultOptions, deriveJSON)
 import Data.Binary
@@ -22,7 +23,7 @@ import Protolude
 
 newtype Hash = Hash {unHash :: Text}
   deriving stock (Generic)
-  deriving newtype (Show, Eq, Ord, ToJSON)
+  deriving newtype (Show, Eq, Ord, ToJSON, NFData)
 
 instance FromJSON Hash where
   parseJSON (String str) =
@@ -42,19 +43,19 @@ mkHashUnsafe = Hash
 
 newtype Signature = Signature {unSignature :: Text}
   deriving stock (Generic)
-  deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON)
+  deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON, NFData)
 
 newtype PublicKey = PublicKey {unPublicKey :: Text}
   deriving stock (Generic)
-  deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON)
+  deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON, NFData)
 
 newtype PrivateKey = PrivateKey {unPrivateKey :: Text}
   deriving stock (Generic)
-  deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON)
+  deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON, NFData)
 
 newtype Money = Money {unMoney :: Integer}
   deriving stock (Generic)
-  deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON)
+  deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON, NFData)
 
 data TxBody = TxBody
   { txb_from :: PublicKey,
@@ -62,14 +63,14 @@ data TxBody = TxBody
     txb_amount :: Money,
     txb_nonce :: Text
   }
-  deriving (Binary, Generic, Show, Eq, Ord)
+  deriving (Binary, Generic, Show, Eq, Ord, NFData)
 
 -- Invalid Tx might flow through app :(
 data Tx = Tx
   { tx_body :: TxBody,
     tx_signature :: Signature
   }
-  deriving (Generic, Show, Eq, Ord)
+  deriving (Generic, Show, Eq, Ord, NFData)
 
 $(deriveJSON defaultOptions {fieldLabelModifier = drop 3} ''Tx)
 

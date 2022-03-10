@@ -22,17 +22,19 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.7 && < 5
 - aeson
-# - base16-bytestring
 - base16
 - binary
 - bytestring
 - containers
 - cryptonite
+- deepseq
 - memory
 - mtl
 - protolude
 - servant
 - servant-server
+- servant-client
+- http-client
 - stm
 - text
 - wai
@@ -67,9 +69,20 @@ library:
   source-dirs: src
 
 executables:
-  trial-chain-api-exe:
+  server-exe:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:         server
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -O2
+    dependencies:
+    - trial-chain-api
+
+  load-test-exe:
+    main:                Main.hs
+    source-dirs:         load-test
     ghc-options:
     - -threaded
     - -rtsopts
