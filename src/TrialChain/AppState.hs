@@ -1,10 +1,13 @@
 module TrialChain.AppState
   ( AppError (..),
+    AppState (..),
+    AppM (..),
     mkState,
     getBalance,
     addTx,
     getTx,
     evalAppM,
+    runAppM,
     getBalanceM,
     addTxM,
     getTxM,
@@ -74,6 +77,9 @@ newtype AppM a = App {unApp :: StateT AppState (ExceptT AppError Identity) a}
 
 evalAppM :: AppM a -> AppState -> Either AppError a
 evalAppM appM st = runExcept (evalStateT (unApp appM) st)
+
+runAppM :: AppM a -> AppState -> Either AppError (a, AppState)
+runAppM appM st = runExcept (runStateT (unApp appM) st)
 
 getBalanceM :: PublicKey -> AppM Money
 getBalanceM pubKey = get <&> getBalance pubKey
