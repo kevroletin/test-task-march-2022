@@ -22,16 +22,6 @@ instance ToHttpApiData Hash where
 instance ToHttpApiData PublicKey where
   toUrlPiece = unPublicKey
 
-mkTx :: PrivateKey -> PublicKey -> Integer -> Text -> Tx
-mkTx privFrom pubTo amount nonce =
-  signTxBody privFrom $
-    TxBody
-      { txb_from = priv2pub privFrom,
-        txb_to = pubTo,
-        txb_amount = Money amount,
-        txb_nonce = nonce
-      }
-
 mkTx' :: PrivateKey -> PublicKey -> Integer -> Text -> (Hash, Tx)
 mkTx' fromPriv toPub amount nonce =
   let tx = mkTx fromPriv toPub amount nonce in (hashTxBody (tx_body tx), tx)
@@ -50,15 +40,15 @@ test :: ClientM Money
 test = do
   let (_, privBank) = mkAccount "bank"
   let (pubKey, _) = mkAccount "basilio"
-  let txs = [mkTx' privBank pubKey 1 (show i) | i <- [1 .. 10_000]]
+  let txs = [mkTx' privBank pubKey 1 (show i) | i <- [1 .. (10_000 :: Int)]]
   putStrLn ("-> generating transactions" :: Text)
   _ <- deepSeqM txs
   putStrLn ("-> adding txs" :: Text)
-  forM_ (txs `zip` [1 ..]) $ \((_, tx), i) -> do
+  forM_ (txs `zip` [(1 :: Int) ..]) $ \((_, tx), i) -> do
     putStr (show i <> "\r" :: Text)
     addTx tx
   putStrLn ("-> requesting txs" :: Text)
-  forM_ (txs `zip` [1 ..]) $ \((txId, _), i) -> do
+  forM_ (txs `zip` [(1 :: Int) ..]) $ \((txId, _), i) -> do
     putStr (show i <> "\r" :: Text)
     getTx txId
   getBalance pubKey

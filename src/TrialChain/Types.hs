@@ -16,7 +16,7 @@ where
 
 import Control.DeepSeq
 import Data.Aeson
-import Data.Aeson.TH (Options (fieldLabelModifier), defaultOptions, deriveJSON)
+import Data.Aeson.TH (deriveJSON)
 import Data.Binary
 import qualified Data.Text.Encoding.Base16 as Base16
 import Protolude

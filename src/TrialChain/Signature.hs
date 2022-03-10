@@ -8,6 +8,7 @@ module TrialChain.Signature
     hashTxBody,
     signTxBody,
     validateTxSign,
+    mkTx,
   )
 where
 
@@ -17,7 +18,6 @@ import Data.Binary.Put (runPut)
 import Data.ByteArray (convert)
 import qualified Data.ByteString.Base16 as Base16
 import qualified Data.ByteString.Lazy as BSL
-import qualified Data.Text as BS
 import qualified Data.Text as T
 import Protolude hiding (put)
 import TrialChain.Types
@@ -74,3 +74,12 @@ validateTxSign tx@(Tx body signVal) =
   case validateSign (txb_from body) (serializeBin body) signVal of
     Just _ -> Just tx
     Nothing -> Nothing
+
+mkTx privFrom pubTo amount nonce =
+  signTxBody privFrom $
+    TxBody
+      { txb_from = priv2pub privFrom,
+        txb_to = pubTo,
+        txb_amount = Money amount,
+        txb_nonce = nonce
+      }
