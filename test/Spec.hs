@@ -1,4 +1,7 @@
+{-# OPTIONS_GHC -Werror -W #-}
+
 import Protolude
+import ServerSpec
 import Test.Hspec
 import TrialChain.AppState
 import TrialChain.Signature
@@ -6,11 +9,17 @@ import TrialChain.Types
 
 main :: IO ()
 main = hspec $ do
+  mockSpec
+  serverSpec1
+  serverSpec1
+
+mockSpec :: Spec
+mockSpec = do
   let (pubFrom, privFrom) = mkAccount "testAccFrom"
   let (pubTo, privTo) = mkAccount "testAccTo"
   let (pub1, priv1) = mkAccount "testAcc1"
   let (pub2, priv2) = mkAccount "testAcc2"
-  let (pub3, priv3) = mkAccount "testAcc3"
+  let (pub3, _priv3) = mkAccount "testAcc3"
 
   describe "Signature" $ do
     it "create account" $ do
@@ -18,13 +27,10 @@ main = hspec $ do
       priv2pub priv `shouldBe` pub
 
     it "sign and check signature" $ do
-      let (pub, priv) = mkAccount "testAcc"
       let str :: Text = "content"
-      validateSign pub str (signStr priv str) `shouldBe` Just str
+      validateSign pub1 str (signStr priv1 str) `shouldBe` Just str
 
     it "sign and check wrong signature" $ do
-      let (pub1, priv1) = mkAccount "testAcc1"
-      let (pub2, priv2) = mkAccount "testAcc2"
       let str :: Text = "content"
       validateSign pub2 str (signStr priv1 str) `shouldBe` Nothing
 
@@ -79,15 +85,6 @@ main = hspec $ do
       let (Right st1) = res
       getBalance pubFrom st1 `shouldBe` Money 0
       getBalance pubTo st1 `shouldBe` Money 100
-
-    let mkTx privFrom pubTo amount nonce =
-          signTxBody privFrom $
-            TxBody
-              { txb_from = priv2pub privFrom,
-                txb_to = pubTo,
-                txb_amount = Money amount,
-                txb_nonce = nonce
-              }
 
     it "move/get" $ do
       let st = mkState [(pub1, 50), (pub2, 50)]

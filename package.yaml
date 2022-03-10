@@ -99,11 +99,19 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - trial-chain-api
-    # We use hspec just because it's familiar
+    - containers
     - hspec
     - hspec-core
-    - hspec-contrib
-    - QuickCheck
-    - HUnit
-    - containers
+    - hspec-wai
+    - http-client
+    - http-types
+    - servant
+    - servant-client
+    - servant-server
+    - stringsearch
+    - text
+    - trial-chain-api
+    - unordered-containers
+    - wai
+    - wai-extra
+    - warp

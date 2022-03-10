@@ -34,10 +34,10 @@ data AppError
   deriving (Eq, Show, Generic)
 
 mkState :: [(PublicKey, Integer)] -> AppState
-mkState list = AppState mempty balances
+mkState xs = AppState mempty balances
   where
     balances = Map.fromListWith (\(Money a) (Money b) -> Money (a + b)) moneyList
-    moneyList = fmap (second Money) list
+    moneyList = fmap (second Money) xs
 
 getBalance :: PublicKey -> AppState -> Money
 getBalance pubKey AppState {..} =

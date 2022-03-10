@@ -14,3 +14,6 @@ packages:
 # extra-include-dirs: [/path/to/dir]
 # extra-lib-dirs: [/path/to/dir]
 # compiler-check: newer-minor
+
+ghc-options:
+  "$locals": -fwrite-ide-info

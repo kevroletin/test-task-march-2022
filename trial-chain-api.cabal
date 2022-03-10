@@ -28,7 +28,9 @@ library
       TrialChain
       TrialChain.API
       TrialChain.AppState
+      TrialChain.Client
       TrialChain.Internal
+      TrialChain.Server
       TrialChain.Signature
       TrialChain.Types
   other-modules:
@@ -184,6 +186,7 @@ test-suite trial-chain-api-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      ServerSpec
       Paths_trial_chain_api
   hs-source-dirs:
       test
@@ -210,9 +213,7 @@ test-suite trial-chain-api-test
       ViewPatterns
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      HUnit
-    , QuickCheck
-    , aeson
+      aeson
     , base >=4.7 && <5
     , base16
     , binary
@@ -221,9 +222,10 @@ test-suite trial-chain-api-test
     , cryptonite
     , deepseq
     , hspec
-    , hspec-contrib
     , hspec-core
+    , hspec-wai
     , http-client
+    , http-types
     , memory
     , mtl
     , protolude
@@ -231,8 +233,11 @@ test-suite trial-chain-api-test
     , servant-client
     , servant-server
     , stm
+    , stringsearch
     , text
     , trial-chain-api
+    , unordered-containers
     , wai
+    , wai-extra
     , warp
   default-language: Haskell2010
