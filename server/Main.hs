@@ -1,8 +1,8 @@
 import Control.Concurrent.STM (newTVarIO)
 import Network.Wai.Handler.Warp (run)
 import Protolude
-import TrialChain.AppState (mkState)
 import TrialChain.Server (ServerState (..), trialChainApp)
+import TrialChain.Simulator (mkState)
 import TrialChain.Types (PublicKey (..))
 
 main :: IO ()

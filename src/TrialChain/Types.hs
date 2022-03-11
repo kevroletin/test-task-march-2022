@@ -1,7 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module TrialChain.Types
-  ( Hash,
+  ( AppError (..),
+    Hash,
     mkHash,
     mkHashUnsafe,
     unHash,
@@ -19,6 +20,13 @@ import Data.Aeson.TH (deriveJSON)
 import Data.Binary (Binary)
 import qualified Data.Text.Encoding.Base16 as Base16
 import Protolude
+
+data AppError
+  = InvalidTxSignature Signature
+  | InsufficientFunds {err_balance :: Money, err_amount :: Money}
+  | DuplicateTx Hash
+  | UnknownTx Hash
+  deriving (Eq, Show, Generic)
 
 newtype Hash = Hash {unHash :: Text}
   deriving stock (Generic)

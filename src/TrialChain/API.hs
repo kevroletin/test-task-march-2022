@@ -5,7 +5,7 @@ module TrialChain.API
 where
 
 import Servant (Capture, Get, JSON, Proxy (..), Put, ReqBody, (:<|>), (:>))
-import TrialChain.Types (Hash, Money, PublicKey, Tx)
+import TrialChain.Types (AppError, Hash, Money, PublicKey, Tx)
 
 {- ORMOLU_DISABLE -}
 type TrialChainAPI =

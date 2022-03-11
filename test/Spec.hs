@@ -3,18 +3,20 @@
 import Protolude
 import ServerSpec (serverSpec1, serverSpec2)
 import Test.Hspec (Spec, describe, hspec, it, shouldBe)
-import TrialChain.AppState (AppError (..), addTx, addTxM, evalAppM, getBalance, getBalanceM, getTx, mkState)
 import TrialChain.Signature (hashTx, mkAccount, mkTx, priv2pub, signStr, signTxBody, validateSign, validateTxSign)
-import TrialChain.Types (Money (..), Tx (..), TxBody (..))
+import TrialChain.Simulator (evalSimM, mkState)
+import qualified TrialChain.Simulator as Sim
+import qualified TrialChain.Simulator.Pure as SimP
+import TrialChain.Types (AppError (..), Money (..), Tx (..), TxBody (..))
 
 main :: IO ()
 main = hspec $ do
-  mockSpec
+  unitTests
   serverSpec1
   serverSpec2
 
-mockSpec :: Spec
-mockSpec = do
+unitTests :: Spec
+unitTests = do
   let (pubFrom, privFrom) = mkAccount "testAccFrom"
   let (pubTo, privTo) = mkAccount "testAccTo"
   let (pub1, priv1) = mkAccount "testAcc1"
@@ -67,7 +69,7 @@ mockSpec = do
                   txb_nonce = ""
                 }
       let st = mkState [(pubTo, 100)]
-      addTx tx st `shouldBe` Left (InsufficientFunds (Money 0) (Money 100))
+      SimP.addTx tx st `shouldBe` Left (InsufficientFunds (Money 0) (Money 100))
 
     it "move and get balance" $ do
       let tx =
@@ -79,37 +81,42 @@ mockSpec = do
                   txb_nonce = ""
                 }
       let st = mkState [(pubFrom, 100)]
-      let res = addTx tx st
+      let res = SimP.addTx tx st
       isRight res `shouldBe` True
 
       let (Right st1) = res
-      getBalance pubFrom st1 `shouldBe` Money 0
-      getBalance pubTo st1 `shouldBe` Money 100
+      SimP.getBalance pubFrom st1 `shouldBe` Money 0
+      SimP.getBalance pubTo st1 `shouldBe` Money 100
 
     it "move/get" $ do
       let st = mkState [(pub1, 50), (pub2, 50)]
-      let res = flip evalAppM st $ do
-            addTxM $ mkTx priv1 pub3 50 ""
-            addTxM $ mkTx priv2 pub3 50 ""
-            getBalanceM pub3
+      let res = flip evalSimM st $ do
+            Sim.addTx $ mkTx priv1 pub3 50 ""
+            Sim.addTx $ mkTx priv2 pub3 50 ""
+            Sim.getBalance pub3
       res `shouldBe` Right (Money 100)
 
     it "execute the same tx twice" $ do
       let st = mkState [(pub1, 100)]
       let tx = mkTx priv1 pub2 50 ""
-      let res = flip evalAppM st $ do
-            addTxM tx
-            addTxM tx
+      let res = flip evalSimM st $ do
+            Sim.addTx tx
+            Sim.addTx tx
             pure ()
       res `shouldBe` Left (DuplicateTx (hashTx tx))
 
     it "execute similar tx" $ do
       let st = mkState [(pub1, 100)]
-      let res = flip evalAppM st $ do
-            addTxM $ mkTx priv1 pub2 50 "nonce-1"
-            addTxM $ mkTx priv1 pub2 50 "nonce-2"
-            getBalanceM pub2
+      let res = flip evalSimM st $ do
+            Sim.addTx $ mkTx priv1 pub2 50 "nonce-1"
+            Sim.addTx $ mkTx priv1 pub2 50 "nonce-2"
+            Sim.getBalance pub2
       res `shouldBe` Right (Money 100)
+
+    it "get unknown tx" $ do
+      let st = mkState []
+      let tx = mkTx priv1 pub2 100 ""
+      SimP.getTx (hashTx tx) st `shouldBe` Left (UnknownTx (hashTx tx))
 
     it "use wrong signature" $ do
       let st = mkState [(pub1, 100)]
@@ -122,9 +129,4 @@ mockSpec = do
                   txb_amount = Money 1,
                   txb_nonce = ""
                 }
-      addTx tx st `shouldBe` Left (InvalidTxSignature (tx_signature tx))
-
-    it "get unknown tx" $ do
-      let st = mkState []
-      let tx = mkTx priv1 pub2 100 ""
-      getTx (hashTx tx) st `shouldBe` Left (UnknownTx (hashTx tx))
+      SimP.addTx tx st `shouldBe` Left (InvalidTxSignature (tx_signature tx))
