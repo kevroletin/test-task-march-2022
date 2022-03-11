@@ -29,6 +29,8 @@ module TrialChain.Types
     Money (..),
     TxBody (..),
     Tx (..),
+    -- re-export
+    Natural,
   )
 where
 
@@ -36,6 +38,7 @@ import Data.Aeson (FromJSON, ToJSON, Value (..), defaultOptions, fieldLabelModif
 import Data.Aeson.TH (deriveJSON)
 import Data.Binary (Binary)
 import qualified Data.Text.Encoding.Base16 as Base16
+import Numeric.Natural (Natural)
 import Protolude
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 
@@ -79,10 +82,10 @@ newtype PrivateKey = PrivateKey {unPrivateKey :: Text}
   deriving stock (Generic)
   deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON, NFData)
 
--- TODO: money should be non-negative
-newtype Money = Money {unMoney :: Integer}
+-- | Represents positive Integer
+newtype Money = Money {unMoney :: Natural}
   deriving stock (Generic)
-  deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON, NFData)
+  deriving newtype (Binary, Show, Eq, Ord, ToJSON, FromJSON, NFData)
 
 data TxBody = TxBody
   { txb_from :: PublicKey,
@@ -107,11 +110,11 @@ $(deriveJSON defaultOptions {fieldLabelModifier = drop 4} ''TxBody)
 instance FromHttpApiData Hash where
   parseUrlPiece = mkHash
 
-instance FromHttpApiData PublicKey where
-  parseUrlPiece = second PublicKey . parseUrlPiece
-
 instance ToHttpApiData Hash where
   toUrlPiece = unHash
+
+instance FromHttpApiData PublicKey where
+  parseUrlPiece = second PublicKey . parseUrlPiece
 
 instance ToHttpApiData PublicKey where
   toUrlPiece = unPublicKey

@@ -21,6 +21,7 @@ module TrialChain.Simulator.Pure
 where
 
 import qualified Data.Map.Strict as Map
+import Numeric.Natural (Natural)
 import Protolude
 import TrialChain.Signature (hashTxBody, validateTxSign)
 import TrialChain.Types (AppError (..), Hash (..), Money (..), PublicKey (..), Tx (..), TxBody (..))
@@ -31,10 +32,10 @@ data SimState = SimState
   }
   deriving (Show, Eq)
 
-mkState :: [(PublicKey, Integer)] -> SimState
+mkState :: [(PublicKey, Natural)] -> SimState
 mkState xs = SimState mempty balances
   where
-    balances = Map.fromListWith (\(Money a) (Money b) -> Money (a + b)) moneyList
+    balances = Map.fromListWith (\a b -> Money (unMoney a + unMoney b)) moneyList
     moneyList = fmap (second Money) xs
 
 getBalance :: PublicKey -> SimState -> Money
@@ -43,10 +44,12 @@ getBalance pubKey SimState {..} =
 
 addTx :: Tx -> SimState -> Either AppError SimState
 addTx tx@(Tx txb@TxBody {..} _) st@SimState {..} = do
-  let (Money balanceFrom) = getBalance txb_from st
-      (Money balanceTo) = getBalance txb_to st
-      (Money amount) = txb_amount
-      newBalanceFrom = Money (balanceFrom - amount)
+  let balanceFrom = unMoney $ getBalance txb_from st
+      balanceTo = unMoney $ getBalance txb_to st
+      amount = unMoney $ txb_amount
+      -- Num instance of Natural sucks because it throws
+      newBalanceFrom =
+        if balanceFrom < amount then Money 0 else Money (balanceFrom - amount)
       newBalanceTo = Money (balanceTo + amount)
       txId = hashTxBody txb
       newBalances =
@@ -58,7 +61,7 @@ addTx tx@(Tx txb@TxBody {..} _) st@SimState {..} = do
     throwError (InvalidTxSignature (tx_signature tx))
   when (isJust (Map.lookup txId app_transactions)) $
     throwError (DuplicateTx txId)
-  when (newBalanceFrom < Money 0) $
+  when (balanceFrom < amount) $
     throwError (InsufficientFunds (Money balanceFrom) txb_amount)
   pure $
     SimState

@@ -20,6 +20,7 @@ import Data.ByteArray (convert)
 import qualified Data.ByteString.Base16 as Base16
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Text as T
+import Numeric.Natural (Natural)
 import Protolude hiding (put)
 import TrialChain.Types (Hash, Money (..), PrivateKey (..), PublicKey (..), Signature (..), Tx (..), TxBody (..), mkHashUnsafe, unHash)
 
@@ -76,7 +77,7 @@ validateTxSign tx@(Tx body signVal) =
     Just _ -> Just tx
     Nothing -> Nothing
 
-mkTx :: PrivateKey -> PublicKey -> Integer -> Text -> Tx
+mkTx :: PrivateKey -> PublicKey -> Natural -> Text -> Tx
 mkTx privFrom pubTo amount nonce =
   signTxBody privFrom $
     TxBody
@@ -86,7 +87,7 @@ mkTx privFrom pubTo amount nonce =
         txb_nonce = nonce
       }
 
-_testSignTx :: Text -> Text -> Integer -> Text -> Tx
+_testSignTx :: Text -> Text -> Natural -> Text -> Tx
 _testSignTx fromAcc toAcc amount nonce =
   let (fromPub, fromPriv) = mkAccount fromAcc
       (toPub, _) = mkAccount toAcc

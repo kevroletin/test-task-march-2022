@@ -126,3 +126,12 @@ unitTestsSpec = do
                   txb_nonce = ""
                 }
       SimP.addTx tx st `shouldBe` Left (InvalidTxSignature (tx_signature tx))
+
+    it "transactions with amount == 0 are valid" $ do
+      let st = mkState []
+      let res = flip evalSimM st $ do
+            Sim.addTx $ mkTx priv1 pub2 0 ""
+            a <- Sim.getBalance pub1
+            b <- Sim.getBalance pub2
+            pure (a, b)
+      res `shouldBe` Right (Money 0, Money 0)

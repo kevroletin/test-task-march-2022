@@ -6,9 +6,9 @@ import Protolude
 import Servant.Client (BaseUrl (..), ClientM, Scheme (..), mkClientEnv, runClientM)
 import TrialChain.Client (addTx, getBalance, getTx)
 import TrialChain.Signature (hashTxBody, mkAccount, mkTx)
-import TrialChain.Types (Hash (..), Money (..), PrivateKey (..), PublicKey (..), Tx (..))
+import TrialChain.Types (Hash (..), Money (..), Natural, PrivateKey (..), PublicKey (..), Tx (..))
 
-mkTx' :: PrivateKey -> PublicKey -> Integer -> Text -> (Hash, Tx)
+mkTx' :: PrivateKey -> PublicKey -> Natural -> Text -> (Hash, Tx)
 mkTx' fromPriv toPub amount nonce =
   let tx = mkTx fromPriv toPub amount nonce in (hashTxBody (tx_body tx), tx)
 
