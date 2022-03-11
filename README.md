@@ -33,8 +33,8 @@ You can generate signed transactions by using ghci:
 ```
 $ stack repl src/TrialChain/Signature.hs
 
-λ import Data.Aeson
-λ putStrLn . encode $ _testSignTx "bank" "pedro" 100 ""
+import Data.Aeson
+putStrLn . encode $ _testSignTx "bank" "pedro" 100 ""
 
 {"body": ...
 ```

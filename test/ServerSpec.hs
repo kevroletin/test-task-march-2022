@@ -9,13 +9,14 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Search as BS
 import Network.HTTP.Client hiding (Proxy)
-import Network.HTTP.Types (statusCode)
+import Network.HTTP.Types (methodGet, methodPut, statusCode)
 import Network.Wai (Application)
 import qualified Network.Wai.Handler.Warp as Warp
-import Protolude hiding (get)
+import Network.Wai.Test (SResponse)
+import Protolude hiding (get, put)
 import Servant.Client (ClientError (..), ResponseF (..), baseUrlPort, mkClientEnv, parseBaseUrl, runClientM)
 import Test.Hspec (Expectation, Spec, around, describe, expectationFailure, it, runIO, shouldBe)
-import Test.Hspec.Wai (get, shouldRespondWith, with)
+import Test.Hspec.Wai (WaiSession, request, shouldRespondWith, with)
 import qualified TrialChain.Client as Client
 import TrialChain.Server (ServerState (..), trialChainApp)
 import TrialChain.Signature (hashTx, mkAccount, mkTx, signTxBody)
@@ -27,12 +28,14 @@ initApp = do
   storage <- newTVarIO $ mkState [(PublicKey "bank", 99999999999999)]
   pure $ trialChainApp (ServerState storage)
 
-serverSpec2 :: Spec
-serverSpec2 = do
-  with initApp $ do
-    describe "test malformed requests" $ do
-      it "not base16 encoded tx" $
-        get "/tx/ololo" `shouldRespondWith` 400
+headers :: (IsString a, IsString b) => [(a, b)]
+headers = [("Content-type", "application/json")]
+
+get :: ByteString -> WaiSession st SResponse
+get path = request methodGet path headers ""
+
+put :: ByteString -> BL.ByteString -> WaiSession st SResponse
+put path = request methodPut path headers
 
 withApp :: (Warp.Port -> IO ()) -> IO ()
 withApp = Warp.testWithApplication initApp
@@ -78,7 +81,7 @@ serverSpec1 = do
           Client.getBalance pub1
         res `shouldBe` (Right $ Money 100)
 
-      it "insufficient funds from empty account" $ \port -> do
+      it "insufficient funds from fresh account" $ \port -> do
         res <- run port $ do
           Client.addTx $ mkTx priv1 pub2 100 ""
         res `errorContains` "InsufficientFunds"
@@ -124,3 +127,32 @@ serverSpec1 = do
         res <- run port $ Client.addTx tx
 
         res `errorContains` "InvalidTxSignature"
+
+-- | Send manually composed requests.
+--
+-- Such tests are hard to maintain but
+-- + allow sending malformed requests;
+-- + help us to test how exactly derived FromJSON, ToJSON instances
+--   serialize/deserialize data structures
+serverSpec2 :: Spec
+serverSpec2 = do
+  with initApp $ do
+    describe "test malformed requests" $ do
+      it "not base16 encoded txId" $
+        get "/tx/ololo" `shouldRespondWith` 400
+
+      it "invalid signature" $ do
+        let req = "{\"body\":{\"from\":\"bank\",\"to\":\"pedro\",\"amount\":100,\"nonce\":\"\"},\"signature\":\"signed-by-bank-ololo\"}"
+
+        put "/tx" req `shouldRespondWith` 400
+
+      it "missing from key" $ do
+        let req = "{\"body\":{\"to\":\"pedro\",\"amount\":100,\"nonce\":\"\"},\"signature\":\"signed-by-bank-ololo\"}"
+
+        put "/tx" req `shouldRespondWith` 400
+
+    describe "valid raw requests" $ do
+      it "valid tx" $ do
+        let req = "{\"body\":{\"from\":\"bank\",\"to\":\"pedro\",\"amount\":100,\"nonce\":\"\"},\"signature\":\"signed-by-bank-94b9798e1bf6f7c46ed9e369f6f1f0eb\"}"
+
+        put "/tx" req `shouldRespondWith` 200
