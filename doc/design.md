@@ -6,9 +6,12 @@ Our mock simulates behavior or a "real" TrialChain:
 * it validates tx signature;
 * refuses double spend;
 * refuses sending non existing money;
+
 It also tracks some state:
+
 * commited txs;
 * account balances.
+
 That logic is implemented in a Simulator (aka Sim).
 
 The whole structure of is the server:
