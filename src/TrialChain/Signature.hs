@@ -12,15 +12,15 @@ module TrialChain.Signature
   )
 where
 
-import Crypto.Hash
-import Data.Binary
+import Crypto.Hash (MD5 (..), hashWith)
+import Data.Binary (Binary, put)
 import Data.Binary.Put (runPut)
 import Data.ByteArray (convert)
 import qualified Data.ByteString.Base16 as Base16
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Text as T
 import Protolude hiding (put)
-import TrialChain.Types
+import TrialChain.Types (Hash, Money (..), PrivateKey (..), PublicKey (..), Signature (..), Tx (..), TxBody (..), mkHashUnsafe, unHash)
 
 signMagicPrefix :: Text
 signMagicPrefix = "signed-by-"
@@ -75,6 +75,7 @@ validateTxSign tx@(Tx body signVal) =
     Just _ -> Just tx
     Nothing -> Nothing
 
+mkTx :: PrivateKey -> PublicKey -> Integer -> Text -> Tx
 mkTx privFrom pubTo amount nonce =
   signTxBody privFrom $
     TxBody

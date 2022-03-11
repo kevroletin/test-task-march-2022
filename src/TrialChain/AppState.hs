@@ -17,8 +17,8 @@ where
 import Control.Monad.Except (liftEither)
 import qualified Data.Map.Strict as Map
 import Protolude
-import TrialChain.Signature
-import TrialChain.Types
+import TrialChain.Signature (hashTxBody, validateTxSign)
+import TrialChain.Types (Hash (..), Money (..), PublicKey (..), Signature (..), Tx (..), TxBody (..))
 
 data AppState = AppState
   { app_transactions :: Map Hash Tx,

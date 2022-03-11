@@ -62,6 +62,7 @@ default-extensions:
 - ScopedTypeVariables
 - StandaloneDeriving
 - TupleSections
+- TypeOperators
 - TypeSynonymInstances
 - ViewPatterns
 

@@ -1,9 +1,9 @@
-import Control.Concurrent.STM
-import Network.Wai.Handler.Warp
+import Control.Concurrent.STM (newTVarIO)
+import Network.Wai.Handler.Warp (run)
 import Protolude
-import TrialChain.AppState
-import TrialChain.Server
-import TrialChain.Types
+import TrialChain.AppState (mkState)
+import TrialChain.Server (ServerState (..), trialChainApp)
+import TrialChain.Types (PublicKey (..))
 
 main :: IO ()
 main = do

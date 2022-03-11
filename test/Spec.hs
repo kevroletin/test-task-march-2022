@@ -1,17 +1,17 @@
 {-# OPTIONS_GHC -Werror -W #-}
 
 import Protolude
-import ServerSpec
-import Test.Hspec
-import TrialChain.AppState
-import TrialChain.Signature
-import TrialChain.Types
+import ServerSpec (serverSpec1, serverSpec2)
+import Test.Hspec (Spec, describe, hspec, it, shouldBe)
+import TrialChain.AppState (AppError (..), addTx, addTxM, evalAppM, getBalance, getBalanceM, getTx, mkState)
+import TrialChain.Signature (hashTx, mkAccount, mkTx, priv2pub, signStr, signTxBody, validateSign, validateTxSign)
+import TrialChain.Types (Money (..), Tx (..), TxBody (..))
 
 main :: IO ()
 main = hspec $ do
   mockSpec
   serverSpec1
-  serverSpec1
+  serverSpec2
 
 mockSpec :: Spec
 mockSpec = do

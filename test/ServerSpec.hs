@@ -4,24 +4,24 @@ module ServerSpec
   )
 where
 
-import Control.Concurrent.STM
+import Control.Concurrent.STM (newTVarIO)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Search as BS
 import Network.HTTP.Client hiding (Proxy)
-import Network.HTTP.Types
+import Network.HTTP.Types (statusCode)
 import Network.Wai (Application)
 import qualified Network.Wai.Handler.Warp as Warp
 import Protolude hiding (get)
-import Servant.Client
-import Test.Hspec
-import Test.Hspec.Wai
-import TrialChain.AppState
+-- import Servant.Client
+import Servant.Client (ClientError (..), ResponseF (..), baseUrlPort, mkClientEnv, parseBaseUrl, runClientM)
+import Test.Hspec (Expectation, Spec, around, describe, expectationFailure, it, runIO, shouldBe)
+import Test.Hspec.Wai (get, shouldRespondWith, with)
+import TrialChain.AppState (mkState)
 import qualified TrialChain.Client as Client
-import TrialChain.Server
-import TrialChain.Signature
-import TrialChain.Types
-import Prelude ()
+import TrialChain.Server (ServerState (..), trialChainApp)
+import TrialChain.Signature (hashTx, mkAccount, mkTx, signTxBody)
+import TrialChain.Types (Money (..), PublicKey (..), TxBody (..))
 
 initApp :: IO Application
 initApp = do
