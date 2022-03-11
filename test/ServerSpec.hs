@@ -58,6 +58,7 @@ errorContains (Left (FailureResponse _ Response {..})) expBodySubstring = do
 errorContains (Left resp) _ =
   expectationFailure ("Expecting FailureResponse but got " <> show resp)
 
+-- | Test using type-safe TrialChain.Client
 serverSpec1 :: Spec
 serverSpec1 = do
   let (pubBank, privBank) = mkAccount "bank"

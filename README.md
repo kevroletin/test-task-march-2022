@@ -1,6 +1,10 @@
 # Trial Chain mock
 
-## Install
+In addition to the [design](doc/design.md) doc, there are also:
+
+* original [problem statement](doc/Coinweb_Haskell_Task.pdf);
+* simplified [stripped task defenition](doc/task.md);
+* [scope](doc/scope.md) - our discussion that we aren't implementing anything complicated;
 
 ## Build
 
@@ -9,6 +13,12 @@ stack build
 ```
 
 ## Run
+
+Important notes:
+* no logging
+* hardcoded **port 8081**
+* both server and test start with **hardcoded magic "bank" account** which contains
+  large quantity of money for testing;
 
 ```
 stack run server-exe
@@ -21,6 +31,8 @@ curl http://localhost:8081/alive
 ```
 
 ## Test
+
+Unit tests and api tests:
 
 ```
 stack test
@@ -75,6 +87,7 @@ stack run load-test-exe
 
 ## Coding style
 
+Prefer explicit imports.
 Format using `ormolu`. Make sure `ormolu` is runnable and execute `sh ./format.sh`.
 
 A hack to copy tools from a current workspace into stack's global bin directory and add it to PATH:
