@@ -12,8 +12,9 @@ import qualified Data.ByteString.Lazy as BL
 import Protolude hiding (Handler)
 import Servant (Application, FromHttpApiData (..), Handler, Server, err400, errBody, serve, (:<|>) (..))
 import TrialChain.API (TrialChainAPI, trialChainAPI)
-import TrialChain.AppState (AppError, AppM, AppState, addTxM, getBalanceM, getTxM, runAppM)
-import TrialChain.Types (Hash (..), Money (..), PublicKey (..), Tx (..), mkHash)
+import TrialChain.Simulator (SimM, SimState, runSimM)
+import qualified TrialChain.Simulator as Sim
+import TrialChain.Types (AppError, Hash (..), Money (..), PublicKey (..), Tx (..), mkHash)
 
 instance FromHttpApiData Hash where
   parseUrlPiece = mkHash
@@ -21,10 +22,10 @@ instance FromHttpApiData Hash where
 instance FromHttpApiData PublicKey where
   parseUrlPiece = second PublicKey . parseUrlPiece
 
-commitAppM :: ServerState -> AppM a -> Handler (Either AppError a)
-commitAppM (ServerState stT) act = liftIO . atomically $ do
+commitSimM :: ServerState -> SimM a -> Handler (Either AppError a)
+commitSimM (ServerState stT) act = liftIO . atomically $ do
   st <- readTVar stT
-  case runAppM act st of
+  case runSimM act st of
     Left err -> pure (Left err)
     Right (res, newSt) -> do
       writeTVar stT newSt
@@ -34,22 +35,22 @@ returnAppRes :: Either AppError a -> Handler a
 returnAppRes (Left err) = throwError $ err400 {errBody = (BL.fromStrict . encodeUtf8 . show) err}
 returnAppRes (Right x) = return x
 
-appM2handler :: ServerState -> AppM a -> Handler a
-appM2handler ss act = commitAppM ss act >>= returnAppRes
+appM2handler :: ServerState -> SimM a -> Handler a
+appM2handler ss act = commitSimM ss act >>= returnAppRes
 
 addTxH :: ServerState -> Tx -> Handler ()
 addTxH ss tx =
-  appM2handler ss $ addTxM tx
+  appM2handler ss $ Sim.addTx tx
 
 getTxH :: ServerState -> Hash -> Handler Tx
 getTxH ss txId =
-  appM2handler ss (getTxM txId)
+  appM2handler ss (Sim.getTx txId)
 
 getBalanceH :: ServerState -> PublicKey -> Handler Money
 getBalanceH ss pubKey =
-  appM2handler ss (getBalanceM pubKey)
+  appM2handler ss (Sim.getBalance pubKey)
 
-newtype ServerState = ServerState (TVar AppState)
+newtype ServerState = ServerState (TVar SimState)
 
 trialChainServer :: ServerState -> Server TrialChainAPI
 trialChainServer st =
