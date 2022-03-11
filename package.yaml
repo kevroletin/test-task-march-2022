@@ -1,10 +1,10 @@
-name:                trial-chain-api
+name:                trial-chain-mock
 version:             0.1.0.0
-github:              "githubuser/trial-chain-api"
+github:              "kevroletin/test-task-march-2022"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2022 Author name here"
+author:              "Vasiliy Kevroletin"
+maintainer:          "kevroletin@gmail.com"
+copyright:           "2022 Vasilii Kevroletin"
 
 extra-source-files:
 - README.md
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/trial-chain-api#readme>
+description:         Please see the README on GitHub at <https://github.com/kevroletin/test-task-march-2022#readme>
 
 dependencies:
 - base >= 4.7 && < 5
@@ -46,7 +46,6 @@ default-extensions:
 - BangPatterns
 # ----------
 - NoImplicitPrelude
-# ----------
 - DataKinds
 - DeriveAnyClass
 - DeriveGeneric
@@ -80,7 +79,7 @@ executables:
     - -O2
     - -Wall
     dependencies:
-    - trial-chain-api
+    - trial-chain-mock
 
   load-test-exe:
     main:                Main.hs
@@ -91,10 +90,10 @@ executables:
     - -with-rtsopts=-N
     - -Wall
     dependencies:
-    - trial-chain-api
+    - trial-chain-mock
 
 tests:
-  trial-chain-api-test:
+  trial-chain-mock-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -114,7 +113,7 @@ tests:
     - servant-server
     - stringsearch
     - text
-    - trial-chain-api
+    - trial-chain-mock
     - unordered-containers
     - wai
     - wai-extra
