@@ -14,6 +14,12 @@ stack build
 stack run server-exe
 ```
 
+You can make sure the server is running using curl:
+
+```
+curl http://localhost:8081/alive
+```
+
 ## Test
 
 ```

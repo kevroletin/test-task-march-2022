@@ -57,6 +57,7 @@ trialChainServer st =
   addTxH st
     :<|> getTxH st
     :<|> getBalanceH st
+    :<|> pure True
 
 trialChainApp :: ServerState -> Application
 trialChainApp ss = serve trialChainAPI (trialChainServer ss)
