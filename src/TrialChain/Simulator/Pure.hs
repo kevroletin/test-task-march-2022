@@ -1,3 +1,16 @@
+-- | Simulator of TrialChain blockcain
+--
+-- * it validates tx signature;
+--
+-- * refuses double spend;
+--
+-- * refuses sending non existing money;
+--
+-- It also tracks some state:
+--
+-- * commited txs;
+--
+-- * account balances.
 module TrialChain.Simulator.Pure
   ( SimState (..),
     mkState,
@@ -10,7 +23,7 @@ where
 import qualified Data.Map.Strict as Map
 import Protolude
 import TrialChain.Signature (hashTxBody, validateTxSign)
-import TrialChain.Types (AppError (..), Hash (..), Money (..), PublicKey (..), Signature (..), Tx (..), TxBody (..))
+import TrialChain.Types (AppError (..), Hash (..), Money (..), PublicKey (..), Tx (..), TxBody (..))
 
 data SimState = SimState
   { app_transactions :: Map Hash Tx,

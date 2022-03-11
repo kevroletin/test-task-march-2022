@@ -5,8 +5,8 @@ module TrialChain.API
 where
 
 import Protolude
-import Servant (Capture, Get, JSON, Proxy (..), Put, ReqBody, (:<|>), (:>))
-import TrialChain.Types (AppError, Hash, Money, PublicKey, Tx)
+import Servant (Capture, Get, JSON, Put, ReqBody, (:<|>), (:>))
+import TrialChain.Types (Hash, Money, PublicKey, Tx)
 
 {- ORMOLU_DISABLE -}
 type TrialChainAPI =

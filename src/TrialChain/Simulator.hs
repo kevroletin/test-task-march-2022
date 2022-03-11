@@ -1,3 +1,4 @@
+-- | Monadic interface to TrialChain.Simulator.Pure
 module TrialChain.Simulator
   ( SimState (..),
     SimM (..),
@@ -11,12 +12,10 @@ module TrialChain.Simulator
 where
 
 import Control.Monad.Except (liftEither)
-import qualified Data.Map.Strict as Map
 import Protolude
-import TrialChain.Signature (hashTxBody, validateTxSign)
 import TrialChain.Simulator.Pure (SimState (..))
 import qualified TrialChain.Simulator.Pure as Super
-import TrialChain.Types (AppError (..), Hash (..), Money (..), PublicKey (..), Signature (..), Tx (..), TxBody (..))
+import TrialChain.Types (AppError (..), Hash (..), Money (..), PublicKey (..), Tx (..))
 
 newtype SimM a = Sim {unApp :: StateT SimState (ExceptT AppError Identity) a}
   deriving newtype (Functor, Applicative, Monad, MonadState SimState, MonadError AppError)

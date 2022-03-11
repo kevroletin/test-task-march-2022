@@ -189,6 +189,7 @@ test-suite trial-chain-mock-test
   main-is: Spec.hs
   other-modules:
       ServerSpec
+      UnitTestsSpec
       Paths_trial_chain_mock
   hs-source-dirs:
       test

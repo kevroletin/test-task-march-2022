@@ -1,5 +1,22 @@
 {-# LANGUAGE TemplateHaskell #-}
 
+-- |
+-- These types serve both as:
+-- 1. part of API definition for Servant
+-- 2. data types for simulator (business logic).
+--
+-- It's common to separate two (1) from (2). Write separate data definition for
+-- *Req, *Resp types and implement conversion to internal representation. That
+-- is required for two reasons:
+--
+-- * internal representation often doesn't match object structure in API for
+--   many reasons;
+--
+-- * the same concept might be represented differently in *Req/*Resp (for example
+--   a commited transition might have a timestamp, while request to add a
+--   transation doesn't);
+--
+-- * API might maintain backward compatibility and different versions.
 module TrialChain.Types
   ( AppError (..),
     Hash,
@@ -20,6 +37,7 @@ import Data.Aeson.TH (deriveJSON)
 import Data.Binary (Binary)
 import qualified Data.Text.Encoding.Base16 as Base16
 import Protolude
+import Servant (FromHttpApiData (..), ToHttpApiData (..))
 
 data AppError
   = InvalidTxSignature Signature
@@ -28,6 +46,7 @@ data AppError
   | UnknownTx Hash
   deriving (Eq, Show, Generic)
 
+-- | Represents Base16 encoded value
 newtype Hash = Hash {unHash :: Text}
   deriving stock (Generic)
   deriving newtype (Show, Eq, Ord, ToJSON, NFData)
@@ -60,6 +79,7 @@ newtype PrivateKey = PrivateKey {unPrivateKey :: Text}
   deriving stock (Generic)
   deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON, NFData)
 
+-- TODO: money should be non-negative
 newtype Money = Money {unMoney :: Integer}
   deriving stock (Generic)
   deriving newtype (Binary, Show, Eq, Ord, FromJSON, ToJSON, NFData)
@@ -72,7 +92,8 @@ data TxBody = TxBody
   }
   deriving (Binary, Generic, Show, Eq, Ord, NFData)
 
--- Invalid Tx might flow through app :(
+-- |
+-- There is no enforcement on validity of signature
 data Tx = Tx
   { tx_body :: TxBody,
     tx_signature :: Signature
@@ -82,3 +103,15 @@ data Tx = Tx
 $(deriveJSON defaultOptions {fieldLabelModifier = drop 3} ''Tx)
 
 $(deriveJSON defaultOptions {fieldLabelModifier = drop 4} ''TxBody)
+
+instance FromHttpApiData Hash where
+  parseUrlPiece = mkHash
+
+instance FromHttpApiData PublicKey where
+  parseUrlPiece = second PublicKey . parseUrlPiece
+
+instance ToHttpApiData Hash where
+  toUrlPiece = unHash
+
+instance ToHttpApiData PublicKey where
+  toUrlPiece = unPublicKey

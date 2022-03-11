@@ -1,3 +1,4 @@
+-- | Signature algorithm mock and functions to hash/sign relevant data types
 module TrialChain.Signature
   ( hashStr,
     priv2pub,
@@ -20,7 +21,7 @@ import qualified Data.ByteString.Base16 as Base16
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Text as T
 import Protolude hiding (put)
-import TrialChain.Types (AppError (..), Hash, Money (..), PrivateKey (..), PublicKey (..), Signature (..), Tx (..), TxBody (..), mkHashUnsafe, unHash)
+import TrialChain.Types (Hash, Money (..), PrivateKey (..), PublicKey (..), Signature (..), Tx (..), TxBody (..), mkHashUnsafe, unHash)
 
 signMagicPrefix :: Text
 signMagicPrefix = "signed-by-"
@@ -84,3 +85,15 @@ mkTx privFrom pubTo amount nonce =
         txb_amount = Money amount,
         txb_nonce = nonce
       }
+
+_testSignTx :: Text -> Text -> Integer -> Text -> Tx
+_testSignTx fromAcc toAcc amount nonce =
+  let (fromPub, fromPriv) = mkAccount fromAcc
+      (toPub, _) = mkAccount toAcc
+   in signTxBody fromPriv $
+        TxBody
+          { txb_from = fromPub,
+            txb_to = toPub,
+            txb_amount = Money amount,
+            txb_nonce = nonce
+          }

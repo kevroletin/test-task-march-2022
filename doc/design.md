@@ -1,61 +1,63 @@
 # Design
 
-## Goals
+## Code structure
 
-From the conversation, email and the task statement we conclude the main is
-demonstrating ability to **write maintainable code by**:
-+ documenting
-+ using known tools
-+ setting up testing, building, CI
+Our mock simulates behavior or a "real" TrialChain:
+* it validates tx signature;
+* refuses double spend;
+* refuses sending non existing money;
+It also tracks some state:
+* commited txs;
+* account balances.
+That logic is implemented in a Simulator (aka Sim).
 
-Non goals:
-+ demonstrating ability to invent/implement complex algorithm
+The whole structure of is the server:
+* Simulator consists of several functions operating on `SimState` (a pure state
+  value);
+* Servant-based server holds `SimState` using `TVar` and exposes simulator
+  methods as RestAPI;
+* there is `SimM` State/Except monad transformer to work with simulator methods.
 
-## Missing requirements
+Simulator:
+* `TrialChain.Simulator` - monadic interface `SimM` using StateT and ExceptT;
+* `TrialChain.Simulator.Pure` - simulator logic.
 
-tldr;
-+ no performance considerations;
-+ no timing simulation, tx finalization happens instantly;
-+ no failure injection;
+Server is implemented using Servant. All relevant definitions are in:
+* `TrialChain.API`
+* `TrialChain.Server`
+* `TrialChain.Client`
+* `TrialChain.Types`
 
-The inspiration for the task is writing a testing mock. But we don't know what
-kind of testing we are supposed to do. Important missing requirements are:
-1. Performance. Stress testing real-world system would stress-test our mock. For
-   that reason we might think about using efficient way of storing large amount
-   of transitions. For simplicity we use simple in-memory storage.
-
-2. Simulating timings. In the real world committing a transition takes time and
-   might fail. Bitcoin easily takes 10+ minutes to write a transition into the
-   blockchain and it takes more time to wait for additional confirmations. We
-   don't simulate this behavior for simplicity.
-
-3. Failure injection. Real-world systems fail and mocks might also be configured
-   to return failures. We skip this hypothetical feature.
-
-4. Restoring testing data. Since we don't think about performance, we assume
-   that testing data can be inserted using our mock API.
+Signing algorithm mock:
+* `TrialChain.Signature`
 
 ## Design
 
 1. Transaction structure
 
-   + No UTXO, account based tracking, hence Tx has nonce field, so we can send
-     similar transactions many times
+   Follows the task statement except for `nonce` field. We aren't implementing
+   UTXO, and using account based tracking. `nonce` allows sending similar
+   transactions multiple times.
 
 2. Hash.
 
-   + Serialize using derived Data.Binary instances.
-   + Hash with cryptonite using md5.
-   + Then convert to Base16 as requested.
+   * Serialize using derived Data.Binary instances.
+   * Hash with cryptonite using md5.
+   * Then convert to Base16 as requested.
+
+   Normally serialization of data structures should be a specified part of the
+   protocol. We just derive instances for simplicity. MD5 is a random choice.
 
 3. Signature.
 
    Mocking signature using a trivial algorithm:
-   + public key is any string
-   + private key is the same string with "signed-by-" prefix
-   + signature is hash represented as Base16 with a privateKey as prefix.
+   * public key is any unicode string;
+   * private key is the same string with "signed-by-" prefix;
+   * signature is a string comprised of
+     * a hash represented as Base16
+     * with a privateKey appended as prefix.
 
-   As a result signatures are quire readable which is good for debugging.
+   As a result signatures are quire readable which is good for manual debugging.
 
    Normally signatures and hashes would be represented inside of the app as
    ByteStrings. Show instances and serialization/deserialization might be
@@ -64,17 +66,30 @@ kind of testing we are supposed to do. Important missing requirements are:
 
 4. Http server.
 
-   + Req/Resp encoding (TODO: explain)
+   * Req/Resp encoding (TODO: explain)
 
-   + Error Handling
-     - TODO: error names
-     - all errors are returned with 400 code (TODO: explain)
+   * Error Handling
+     * all errors are reported by HTTP status code 400;
+     * body of a response contains a string with a description of an error
+       suitable for debugging.
+
+   We follow a simple strategy for error handling. It's consistent, simple and
+   sufficient for detecting and logging error for later investigation.
 
 5. Storage.
-6. Synchronization.
-7. unit testing.
-8. e2e testing.
-9. performance testing.
-10. coding style.
-    + just use ormolu - consistent, easy to use (but gives opinionated formatting)
 
+   No storage.
+
+6. Synchronization.
+
+   Synchronize state updates using STM.
+
+7. unit testing.
+
+8. e2e testing.
+
+9. performance testing.
+
+10. coding style.
+    + use ormolu - consistent, easy to use (but gives opinionated formatting)
+    + prefer explicit imports (but it's ok not to import everything from Protolude).

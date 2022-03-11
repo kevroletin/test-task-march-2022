@@ -1,14 +1,13 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
 module TrialChain.Client
   ( addTx,
     getTx,
     getBalance,
+    alive,
   )
 where
 
 import Protolude
-import Servant.API (ToHttpApiData, toUrlPiece, (:<|>) (..))
+import Servant.API ((:<|>) (..))
 import Servant.Client (ClientM, client)
 import TrialChain.API (trialChainAPI)
 import TrialChain.Types (Hash (..), Money, PublicKey (..), Tx)
@@ -18,9 +17,3 @@ getTx :: Hash -> ClientM Tx
 getBalance :: PublicKey -> ClientM Money
 alive :: ClientM Bool
 addTx :<|> getTx :<|> getBalance :<|> alive = client trialChainAPI
-
-instance ToHttpApiData Hash where
-  toUrlPiece = unHash
-
-instance ToHttpApiData PublicKey where
-  toUrlPiece = unPublicKey

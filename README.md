@@ -26,6 +26,28 @@ curl http://localhost:8081/alive
 stack test
 ```
 
+## Manual testing
+
+You can generate signed transactions by using ghci:
+
+```
+$ stack repl src/TrialChain/Signature.hs
+
+λ import Data.Aeson
+λ putStrLn . encode $ _testSignTx "bank" "pedro" 100 ""
+
+{"body": ...
+```
+
+And send requests by REST client of your choice:
+
+```
+PUT http://localhost:8081/tx
+Content-type: application/json
+
+{"body":{"from":"bank","to":"pedro","amount":100,"nonce":""},"signature":"signed-by-bank-90d2e36e37adaaa5fbe854f77b02837c"}
+```
+
 ## Profiling
 
 Done manually. Build sever with profiling, run load-test, analyze profiles
