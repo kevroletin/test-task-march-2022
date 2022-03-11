@@ -1,4 +1,4 @@
-# trial-chain-api
+# Trial Chain mock
 
 ## Install
 

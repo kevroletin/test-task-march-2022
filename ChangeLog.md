@@ -1,3 +1,3 @@
-# Changelog for trial-chain-api
+# Changelog for trial-chain-mock
 
 ## Unreleased changes
