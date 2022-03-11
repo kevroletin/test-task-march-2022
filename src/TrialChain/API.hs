@@ -1,9 +1,11 @@
-{-# LANGUAGE TypeOperators #-}
+module TrialChain.API
+  ( trialChainAPI,
+    TrialChainAPI,
+  )
+where
 
-module TrialChain.API where
-
-import Servant
-import TrialChain.Types
+import Servant (Capture, Get, JSON, Proxy (..), Put, ReqBody, (:<|>), (:>))
+import TrialChain.Types (Hash, Money, PublicKey, Tx)
 
 {- ORMOLU_DISABLE -}
 type TrialChainAPI =

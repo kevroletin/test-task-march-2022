@@ -1,4 +1,3 @@
-{-# LANGUAGE TypeOperators #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module TrialChain.Client
@@ -8,14 +7,10 @@ module TrialChain.Client
   )
 where
 
-import Control.DeepSeq
-import Network.HTTP.Client (defaultManagerSettings, newManager)
-import Protolude
-import Servant.API
-import Servant.Client
-import TrialChain.API
-import TrialChain.Signature
-import TrialChain.Types
+import Servant.API (ToHttpApiData, toUrlPiece, (:<|>) (..))
+import Servant.Client (ClientM, client)
+import TrialChain.API (trialChainAPI)
+import TrialChain.Types (Hash (..), Money, PublicKey (..), Tx)
 
 addTx :: Tx -> ClientM ()
 getTx :: Hash -> ClientM Tx

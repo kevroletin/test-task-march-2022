@@ -1,26 +1,12 @@
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE TypeOperators #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
-import Control.DeepSeq
 import Network.HTTP.Client (defaultManagerSettings, newManager)
 import Protolude
-import Servant.API
-import Servant.Client
-import TrialChain.API
-import TrialChain.Signature
-import TrialChain.Types
-
-addTx :: Tx -> ClientM ()
-getTx :: Hash -> ClientM Tx
-getBalance :: PublicKey -> ClientM Money
-addTx :<|> getTx :<|> getBalance = client trialChainAPI
-
-instance ToHttpApiData Hash where
-  toUrlPiece = unHash
-
-instance ToHttpApiData PublicKey where
-  toUrlPiece = unPublicKey
+import Servant.Client (BaseUrl (..), ClientM, Scheme (..), mkClientEnv, runClientM)
+import TrialChain.Client (addTx, getBalance, getTx)
+import TrialChain.Signature (hashTxBody, mkAccount, mkTx)
+import TrialChain.Types (Hash (..), Money (..), PrivateKey (..), PublicKey (..), Tx (..))
 
 mkTx' :: PrivateKey -> PublicKey -> Integer -> Text -> (Hash, Tx)
 mkTx' fromPriv toPub amount nonce =

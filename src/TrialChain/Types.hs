@@ -14,10 +14,9 @@ module TrialChain.Types
   )
 where
 
-import Control.DeepSeq
-import Data.Aeson
+import Data.Aeson (FromJSON, ToJSON, Value (..), defaultOptions, fieldLabelModifier, parseJSON)
 import Data.Aeson.TH (deriveJSON)
-import Data.Binary
+import Data.Binary (Binary)
 import qualified Data.Text.Encoding.Base16 as Base16
 import Protolude
 

@@ -7,15 +7,13 @@ module TrialChain.Server
   )
 where
 
-import Control.Concurrent.STM
-import Control.Monad.Except
+import Control.Concurrent.STM (TVar, readTVar, writeTVar)
 import qualified Data.ByteString.Lazy as BL
-import Network.Wai
 import Protolude hiding (Handler)
-import Servant
-import TrialChain.API
-import TrialChain.AppState
-import TrialChain.Types
+import Servant (Application, FromHttpApiData (..), Handler, Server, err400, errBody, serve, (:<|>) (..))
+import TrialChain.API (TrialChainAPI, trialChainAPI)
+import TrialChain.AppState (AppError, AppM, AppState, addTxM, getBalanceM, getTxM, runAppM)
+import TrialChain.Types (Hash (..), Money (..), PublicKey (..), Tx (..), mkHash)
 
 instance FromHttpApiData Hash where
   parseUrlPiece = mkHash
