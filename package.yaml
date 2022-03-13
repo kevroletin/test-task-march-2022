@@ -1,0 +1,120 @@
+name:                trial-chain-mock
+version:             0.1.0.0
+github:              "kevroletin/test-task-march-2022"
+license:             BSD3
+author:              "Vasiliy Kevroletin"
+maintainer:          "kevroletin@gmail.com"
+copyright:           "2022 Vasilii Kevroletin"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/kevroletin/test-task-march-2022#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- aeson
+- base16
+- binary
+- bytestring
+- containers
+- cryptonite
+- deepseq
+- memory
+- mtl
+- protolude
+- servant
+- servant-server
+- servant-client
+- http-client
+- stm
+- text
+- wai
+- warp
+
+default-extensions:
+# ----------
+- StrictData
+- BangPatterns
+# ----------
+- NoImplicitPrelude
+- DataKinds
+- DeriveAnyClass
+- DeriveGeneric
+- DerivingStrategies
+- FlexibleContexts
+- FlexibleInstances
+- GeneralizedNewtypeDeriving
+- LambdaCase
+- MultiParamTypeClasses
+- NoMonomorphismRestriction
+- OverloadedStrings
+- RecordWildCards
+- ScopedTypeVariables
+- StandaloneDeriving
+- TupleSections
+- TypeOperators
+- TypeSynonymInstances
+- ViewPatterns
+
+library:
+  source-dirs: src
+
+executables:
+  server-exe:
+    main:                Main.hs
+    source-dirs:         server
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -O2
+    - -Wall
+    dependencies:
+    - trial-chain-mock
+
+  load-test-exe:
+    main:                Main.hs
+    source-dirs:         load-test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Wall
+    dependencies:
+    - trial-chain-mock
+
+tests:
+  trial-chain-mock-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Wall
+    dependencies:
+    - containers
+    - hspec
+    - hspec-core
+    - hspec-wai
+    - http-client
+    - http-types
+    - servant
+    - servant-client
+    - servant-server
+    - stringsearch
+    - text
+    - trial-chain-mock
+    - unordered-containers
+    - wai
+    - wai-extra
+    - warp

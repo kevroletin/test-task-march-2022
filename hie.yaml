@@ -1,0 +1,19 @@
+cradle:
+  cabal:
+    - path: "src"
+      component: "lib:trial-chain-mock"
+
+    - path: "load-test/Main.hs"
+      component: "trial-chain-mock:exe:load-test-exe"
+
+    - path: "load-test/Paths_trial_chain_mock.hs"
+      component: "trial-chain-mock:exe:load-test-exe"
+
+    - path: "server/Main.hs"
+      component: "trial-chain-mock:exe:server-exe"
+
+    - path: "server/Paths_trial_chain_mock.hs"
+      component: "trial-chain-mock:exe:server-exe"
+
+    - path: "test"
+      component: "trial-chain-mock:test:trial-chain-mock-test"
